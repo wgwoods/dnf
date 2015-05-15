@@ -32,3 +32,7 @@
 .. exception:: dnf.exceptions.MarkingError
 
 .. exception:: dnf.exceptions.RepoError
+
+.. exception:: dnf.exceptions.TransactionCheckError
+
+  Raised if there are problems with the pre-transaction check.

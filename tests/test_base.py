@@ -180,6 +180,53 @@ class VerifyTransactionTest(TestCase):
         self.assertEqual(yumdb_info.checksum_data, HASH)
         self.base.yumdb.assertLength(2)
 
+@mock.patch('dnf.sack.build_sack', new_callable=mock_sack_fn)
+@mock.patch('dnf.yum.rpmtrans.RPMTransaction')
+class TestTransactionTest(TestCase):
+    def setUp(self):
+        self.base = support.MockBase("main")
+        self.base.conf.diskspacecheck = False
+        # add mock RPM ts to base
+        self.ts = mock.Mock()
+        self.ts.problems = mock.Mock(return_value=[])
+        self.ts.test = mock.Mock(return_value=[])
+        self.base._ts = self.ts
+        self.base._transaction = mock.Mock()
+
+    def test_empty_transaction(self, *dummy):
+        self.base._transaction = None
+        self.base.do_transaction(test=True)
+        self.assertFalse(self.ts.called)
+        self.assertEqual(self.base.transaction, None)
+
+    def test_test_transaction(self, RPMTransaction, dummy):
+        self.base.do_transaction(test=True)
+        self.base.transaction.populate_rpm_ts.assert_called_once_with(self.ts)
+        RPMTransaction.assert_called_once_with(self.base, test=True)
+        self.ts.assert_has_calls([
+            mock.call.check(),
+            mock.call.problems(),
+            mock.call.order(),
+            mock.call.clean(),
+            mock.call.test(RPMTransaction()),
+        ])
+
+    def test_transaction_probs(self, *dummy):
+        probs = ["PROBLEM_DESCRIPTION_1", "PROBLEM_DESCRIPTION_2"]
+        self.ts.problems = mock.Mock(return_value=probs)
+        with self.assertRaises(dnf.exceptions.TransactionCheckError) as cm:
+            self.base.do_transaction(test=True)
+        # the exception object contains only the *last* error message
+        self.assertEqual(cm.exception.value, probs[-1])
+
+    def test_transaction_err(self, *dummy):
+        errs = ["ERROR_MESSAGE_1", "ERROR_MESSAGE_2"]
+        self.ts.test = mock.Mock(return_value=errs)
+        with self.assertRaises(dnf.exceptions.Error) as cm:
+            self.base.do_transaction(test=True)
+        # the exception object contains *all* the error messages
+        self.assertTrue(all(err in cm.exception.value for err in errs))
+
 class InstallReasonTest(support.ResultTestCase):
     def setUp(self):
         self.base = support.MockBase("main")

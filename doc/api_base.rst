@@ -78,9 +78,15 @@
       base.repos.add(repo)
       base.fill_sack()
 
-  .. method:: do_transaction([display])
+  .. method:: do_transaction([display=None, test=False])
 
-    Perform the resolved transaction. Use the optional `display` object to report the progress.
+    Check, test, and perform the resolved transaction. Use the optional `display` object to report the progress.
+
+    If `test` is True, the resolved transaction is checked and tested but not actually performed.
+
+    Raises :exc:`dnf.exceptions.TransactionCheckError` if RPM finds problems during the transaction check; the exception's :attr:`value` will be a string containing the last error returned by RPM. This usually indicates problems with the individual packages, such as broken dependencies.
+
+    Raises :exc:`dnf.exceptions.Error` if the transaction test returns any errors; the exception's :attr:`value` will be a string containing a summary of the errors found. This usually indicates problems with the overall transaction, such as insufficient disk space.
 
   .. method:: download_packages(pkglist, progress=None)
 

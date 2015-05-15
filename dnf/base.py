@@ -508,7 +508,7 @@ class Base(object):
             raise exc
         return got_transaction
 
-    def do_transaction(self, display=None):
+    def do_transaction(self, display=None, test=False):
         # :api
 
         persistor = self.group_persistor
@@ -556,6 +556,9 @@ class Base(object):
 
         logger.info(_('Transaction test succeeded.'))
         timer()
+
+        if test:
+            return
 
         # unset the sigquit handler
         timer = dnf.logging.Timer('transaction')

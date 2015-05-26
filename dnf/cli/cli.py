@@ -142,6 +142,7 @@ class BaseCli(dnf.Base):
         conf = conf or dnf.conf.Conf()
         super(BaseCli, self).__init__(conf=conf)
         self.output = output.Output(self, self.conf)
+        self.transaction_display = output.CliTransactionDisplay()
 
     def _groups_diff(self):
         if not self.group_persistor:
@@ -215,8 +216,7 @@ class BaseCli(dnf.Base):
             # Check GPG signatures
             self.gpgsigcheck(downloadpkgs)
 
-        display = output.CliTransactionDisplay()
-        super(BaseCli, self).do_transaction(display)
+        super(BaseCli, self).do_transaction()
         if trans:
             msg = self.output.post_transaction_output(trans)
             logger.info(msg)

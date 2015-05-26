@@ -82,6 +82,7 @@ class Base(object):
         self._history = None
         self._tempfiles = set()
         self.ds_callback = dnf.callback.Depsolve()
+        self.transaction_display = None
         self.group_persistor = None
         self.logging = dnf.logging.Logging()
         self._repos = dnf.repodict.RepoDict()
@@ -510,6 +511,9 @@ class Base(object):
 
     def do_transaction(self, display=None):
         # :api
+
+        if display is None:
+            display = self.transaction_display
 
         persistor = self.group_persistor
         if persistor:

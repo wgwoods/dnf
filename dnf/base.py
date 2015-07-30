@@ -580,8 +580,6 @@ class Base(object):
         logger.info(_('Transaction test succeeded.'))
         timer()
 
-        # unset the sigquit handler
-        timer = dnf.logging.Timer('transaction')
         # put back our depcheck callback
         self.ds_callback = dscb
         # setup our rpm ts callback
@@ -589,6 +587,9 @@ class Base(object):
         if self.conf.debuglevel < 2:
             for display_ in cb.displays:
                 display_.output = False
+
+        # unset the sigquit handler
+        timer = dnf.logging.Timer('transaction')
 
         logger.info(_('Running transaction'))
         lock = dnf.lock.build_rpmdb_lock(self.conf.persistdir)

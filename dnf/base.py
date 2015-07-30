@@ -529,11 +529,7 @@ class Base(object):
             raise exc
         return got_transaction
 
-    def do_transaction(self, display=()):
-        # :api
-        if not isinstance(display, collections.Sequence):
-            display = [display]
-
+    def test_transaction(self):
         persistor = self.group_persistor
         if persistor:
             persistor.commit()
@@ -582,6 +578,14 @@ class Base(object):
 
         # put back our depcheck callback
         self.ds_callback = dscb
+
+    def do_transaction(self, display=()):
+        # :api
+        if not isinstance(display, collections.Sequence):
+            display = [display]
+
+        self.test_transaction()
+
         # setup our rpm ts callback
         cb = dnf.yum.rpmtrans.RPMTransaction(self, displays=display)
         if self.conf.debuglevel < 2:

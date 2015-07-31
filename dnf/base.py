@@ -587,12 +587,15 @@ class Base(object):
         # put back our depcheck callback
         self.ds_callback = dscb
 
-    def do_transaction(self, display=()):
+    def do_transaction(self, display=(), dryrun=False):
         # :api
         if not isinstance(display, collections.Sequence):
             display = [display]
 
         self.test_transaction()
+
+        if dryrun:
+            return
 
         # setup our rpm ts callback
         cb = dnf.yum.rpmtrans.RPMTransaction(self, displays=display)

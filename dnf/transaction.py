@@ -23,6 +23,7 @@ from __future__ import unicode_literals
 from dnf.i18n import _
 from functools import reduce
 import operator
+import pickle
 
 DOWNGRADE = 1
 ERASE     = 2
@@ -211,3 +212,18 @@ class Transaction(object):
 
     def total_package_count(self):
         return len(self.install_set | self.remove_set)
+
+    def dump(self, fp):
+        pickle.dump(self._tsis, fp)
+
+    def load(self, fp):
+        self._tsis = pickle.load(fp)
+
+def load(fp):
+    ts = Transaction()
+    ts.load(fp)
+    return ts
+
+def dump(ts, fp):
+    if isinstance(ts, Transaction):
+        ts.dump(fp)

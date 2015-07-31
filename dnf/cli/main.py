@@ -165,7 +165,7 @@ def resolving(cli, base):
     if cli.demands.transaction_display is not None:
         displays.append(cli.demands.transaction_display)
     try:
-        base.do_transaction(display=displays)
+        base.do_transaction(display=displays, dryrun=cli.demands.dryrun)
     except dnf.cli.CliError as exc:
         logger.error(ucd(exc))
         return 1

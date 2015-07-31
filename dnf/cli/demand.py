@@ -48,6 +48,7 @@ class DemandSheet(object):
     allow_erasing = _BoolDefault(False)
     available_repos = _BoolDefault(False)
     resolving = _BoolDefault(False)
+    dryrun = _BoolDefault(False)
     root_user = _BoolDefault(False)
     sack_activation = _BoolDefault(False)
     success_exit_status = 0

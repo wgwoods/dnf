@@ -393,3 +393,45 @@ class TempfilePersistor(JSONDB):
 
     def empty(self):
         self._empty = True
+
+# TODO ww: should this also save/load the transaction object?
+class OfflineUpdatePersistor(JSONDB):
+    def __init__(self, cachedir):
+        self.cachedir = cachedir
+        self.db_path = os.path.join(self.cachedir, "offline_update.json")
+        self._data = dict()
+
+    def _read(self):
+        self._check_json_db(self.db_path)
+        self._data = self._get_json_db(self.db_path)
+
+    def write(self):
+        self._check_json_db(self.db_path)
+        self._write_json_db(self.db_path, self._data)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is None:
+            self.write()
+
+    class _StateProperty(object):
+        # pylint: disable=protected-access
+        def __init__(self, name, choices=None):
+            self.name = name
+            self.choices = choices
+        def __get__(self, obj, objtype=None):
+            return obj._state.get(self.name)
+        def __set__(self, obj, val):
+            if self.choices and val not in self.choices:
+                raise ValueError("invalid value %r" % val)
+            obj._state[self.name] = val
+
+    datadir = _StateProperty('datadir')
+    releasever = _StateProperty('releasever')
+    distro_sync = _StateProperty('distro_sync')
+    download_status = _StateProperty('download_status',
+                        choices=(None, "downloading", "complete"))
+    upgrade_status = _StateProperty('upgrade_status',
+                        choices=(None, "ready", "incomplete", "complete"))

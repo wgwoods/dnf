@@ -529,6 +529,14 @@ class Base(object):
             raise exc
         return got_transaction
 
+    def save_transaction(self, filename):
+        with open(filename, 'wb') as fp:
+            dnf.transaction.dump(self._transaction, fp)
+
+    def load_transaction(self, filename):
+        with open(filename) as fp:
+            self._transaction = dnf.transaction.load(fp)
+
     def test_transaction(self):
         persistor = self.group_persistor
         if persistor:
